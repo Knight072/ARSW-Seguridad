@@ -19,6 +19,12 @@ public class BBEndpoint {
     /* Queue for all open WebSocket sessions */
     static Queue<Session> queue = new ConcurrentLinkedQueue<>();
     Session ownSession = null;
+    private boolean accepted = false;
+
+    //This code allows to include a bean directly from the application context
+    TicketRepository ticketRepo = (TicketRepository)
+                    BBApplicationContextAware.getApplicationContext().getBean("ticketRepository");
+
     /* Call this method to send a message to all clients */
     public void send(String msg) {
         try {
@@ -35,8 +41,19 @@ public class BBEndpoint {
     }
     @OnMessage
     public void processPoint(String message, Session session) {
-        System.out.println("Point received:" + message + ". From session: " + session);
-        this.send(message);
+        if (accepted) {
+            this.send(message);
+        } else {
+            if (!accepted && ticketRepo.checkTicket(message)) {
+                accepted = true;
+            }else{
+                try {
+                    ownSession.close();
+                } catch (IOException ex) {
+                    Logger.getLogger(BBEndpoint.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
     }
     @OnOpen
     public void openConnection(Session session) {
