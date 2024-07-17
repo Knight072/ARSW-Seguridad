@@ -86,10 +86,6 @@ La aplicación está configurada para usar HTTPS:
 
 La aplicación utiliza HTTPS para todas las conexiones, asegurando que toda la comunicación entre el cliente y el servidor esté encriptada. Esto incluye la transmisión de credenciales de inicio de sesión y los datos del dibujo en tiempo real.
 
-## Contribuir
-
-Las contribuciones son bienvenidas. Por favor, abre un issue para discutir los cambios propuestos antes de hacer un pull request.
-
 ## Licencia
 
 [MIT](https://choosealicense.com/licenses/mit/)
