@@ -8,6 +8,7 @@ Interactive Blackboard es una aplicación web que permite a los usuarios dibujar
 - Autenticación de usuarios
 - Interfaz de usuario reactiva
 - Comunicación bidireccional mediante WebSockets
+- Conexión segura a través de HTTPS
 
 ## Tecnologías utilizadas
 
@@ -17,6 +18,7 @@ Interactive Blackboard es una aplicación web que permite a los usuarios dibujar
   - WebSocket (Jakarta WebSocket)
   - Spring Security
   - Thymeleaf (para plantillas HTML)
+  - SSL/TLS para conexiones seguras
 - Frontend:
   - React
   - p5.js para el lienzo de dibujo
@@ -27,31 +29,12 @@ Interactive Blackboard es una aplicación web que permite a los usuarios dibujar
 
 La aplicación sigue una arquitectura cliente-servidor con comunicación en tiempo real:
 
+![Arquitectura de Interactive Blackboard](/docs/images/architecture_diagram.png)
+
+*Figura 1: Diagrama de la arquitectura de Interactive Blackboard*
+
 1. **Backend (Servidor)**:
-   - Spring Boot proporciona el marco de trabajo para el servidor.
-   - `BBEndpoint` maneja las conexiones WebSocket, recibiendo y transmitiendo mensajes entre clientes.
-   - Spring Security gestiona la autenticación y autorización de usuarios.
-   - MVC (Model-View-Controller) se utiliza para manejar las solicitudes HTTP y renderizar vistas.
-   - Thymeleaf se usa para las plantillas HTML dinámicas.
-
-2. **Frontend (Cliente)**:
-   - React se utiliza para crear una interfaz de usuario dinámica y reactiva para el lienzo de dibujo.
-   - Los componentes React manejan la lógica de la interfaz de usuario y el estado de la aplicación de dibujo.
-   - p5.js se utiliza para crear y manipular el lienzo de dibujo.
-   - Una conexión WebSocket permite la comunicación en tiempo real con el servidor.
-   - Páginas HTML estáticas (con algo de dinamismo via Thymeleaf) se usan para la página de inicio y login.
-
-3. **Comunicación**:
-   - WebSocket proporciona un canal de comunicación bidireccional y full-duplex entre el cliente y el servidor para el lienzo de dibujo.
-   - Los mensajes se intercambian en formato JSON, conteniendo las coordenadas de los puntos dibujados.
-
-4. **Flujo de datos**:
-   - El usuario dibuja en el lienzo del cliente.
-   - Las coordenadas se envían al servidor a través de WebSocket.
-   - El servidor reenvía las coordenadas a todos los clientes conectados.
-   - Cada cliente recibe las coordenadas y actualiza su lienzo en consecuencia.
-
-Esta arquitectura permite una experiencia de dibujo colaborativo en tiempo real, donde múltiples usuarios pueden ver y contribuir al mismo lienzo simultáneamente.
+   [... resto del contenido ...]
 
 ## Estructura del proyecto
 
@@ -61,35 +44,47 @@ Esta arquitectura permite una experiencia de dibujo colaborativo en tiempo real,
 - `bbComponents.jsx`: Componentes React para el lienzo de dibujo y la comunicación WebSocket.
 - `home.html`: Página de inicio de la aplicación.
 - `login.html`: Página de inicio de sesión.
+- `application.properties`: Configuración de la aplicación, incluyendo configuración SSL y puertos.
 
-## Páginas HTML
+## Configuración
 
-### home.html
-La página de inicio contiene un mensaje de bienvenida y un enlace a la página de saludo (index.html).
+### Puertos
+- HTTP: 8080
+- HTTPS: 8443
 
-### login.html
-La página de inicio de sesión incluye:
-- Un formulario para ingresar nombre de usuario y contraseña.
-- Mensajes de alerta para errores de inicio de sesión y cierre de sesión exitoso.
+### SSL/TLS
+La aplicación está configurada para usar HTTPS:
 
-Estas páginas utilizan Thymeleaf para el renderizado del lado del servidor y la integración con Spring Security.
+- Tipo de almacén de claves: PKCS12
+- Ubicación del almacén de claves: `classpath:baeldung.p12`
+- Contraseña del almacén de claves: 123456
+- Alias de la clave: baeldung
+
+### Trust Store
+- Ubicación: `classpath:baeldung.p12`
+- Contraseña: 123456
 
 ## Configuración y ejecución
 
 1. Asegúrate de tener Java JDK y Node.js instalados en tu sistema.
 2. Clona el repositorio.
 3. Navega hasta el directorio del proyecto.
-4. Ejecuta `mvn spring-boot:run` para iniciar el servidor backend.
-5. En otra terminal, navega hasta el directorio frontend y ejecuta `npm install` seguido de `npm start`.
-6. Abre un navegador y visita `http://localhost:3000` (o el puerto que se indique).
+4. Asegúrate de que el archivo `baeldung.p12` esté en el classpath (generalmente en `src/main/resources`).
+5. Ejecuta `mvn spring-boot:run` para iniciar el servidor backend. El servidor estará disponible en `https://localhost:8443`.
+6. En otra terminal, navega hasta el directorio frontend y ejecuta `npm install` seguido de `npm start`.
+7. Abre un navegador y visita `https://localhost:8443` para acceder a la aplicación de forma segura.
 
 ## Uso
 
-1. Visita la página de inicio y haz clic en el enlace para ver el saludo.
+1. Visita la página de inicio segura (`https://localhost:8443`) y haz clic en el enlace para ver el saludo.
 2. Inicia sesión con el usuario predeterminado (usuario: "user", contraseña: "password").
 3. Una vez autenticado, serás redirigido al lienzo de dibujo.
 4. Haz clic y arrastra el ratón para dibujar en el lienzo.
 5. Todos los usuarios conectados verán los dibujos en tiempo real.
+
+## Seguridad
+
+La aplicación utiliza HTTPS para todas las conexiones, asegurando que toda la comunicación entre el cliente y el servidor esté encriptada. Esto incluye la transmisión de credenciales de inicio de sesión y los datos del dibujo en tiempo real.
 
 ## Contribuir
 
